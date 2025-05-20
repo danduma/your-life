@@ -299,3 +299,46 @@ input:required:invalid.touched {
     display: none;
   }
 }
+
+/**
+ * Life Parameters Form Styles
+ */
+.current-date,
+.life-params {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.param-group {
+  margin: 0.5rem 0;
+}
+
+.param-group label {
+  display: inline-block;
+  margin-right: 0.5rem;
+  min-width: 120px;
+  text-align: right;
+}
+
+.param-group input {
+  width: 60px;
+  padding: 2px 4px;
+  margin-right: 1rem;
+}
+
+/* Color indicators */
+.chart li.lived {
+  background-color: red;
+}
+
+.chart li.healthy {
+  background-color: #2ecc71;
+}
+
+.chart li.chronic {
+  background-color: #f1c40f;
+}
+
+.chart li.female-extra {
+  background-color: #d3840e; 
+}

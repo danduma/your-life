@@ -7,6 +7,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="months-favicon.png" sizes="32x32">
   <link rel="stylesheet" href="your-life.css">
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <style>
+    .export-button {
+      display: block;
+      margin: 1rem auto;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      color: white;
+      background-color: #2980b9;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .export-button:hover {
+      background-color: #3498db;
+    }
+  </style>
 </head>
 <body>
   <div class="title-box">
@@ -39,6 +57,49 @@
     <label for="year" class="visuallyhidden">Year</label>
     <input type="text" class="year" id="year" placeholder="1999" pattern="\d{4}" required/>
   </form>
+
+  <form class="current-date" action="#">
+    <p class="instruction">Current Date (defaults to today)</p>
+    <label for="current-month" class="visuallyhidden">Month</label>
+    <select name="current-month" class="month" id="current-month">
+      <option value="0">January</option>
+      <option value="1">February</option>
+      <option value="2">March</option>
+      <option value="3">April</option>
+      <option value="4">May</option>
+      <option value="5">June</option>
+      <option value="6">July</option>
+      <option value="7">August</option>
+      <option value="8">September</option>
+      <option value="9">October</option>
+      <option value="10">November</option>
+      <option value="11">December</option>
+    </select>
+    <label for="current-day" class="visuallyhidden">Day</label>
+    <input type="text" class="day" id="current-day" placeholder="31" pattern="\d{0,2}"/>
+    <label for="current-year" class="visuallyhidden">Year</label>
+    <input type="text" class="year" id="current-year" placeholder="2024" pattern="\d{4}"/>
+  </form>
+
+  <form class="life-params" action="#">
+    <p class="instruction">Life Parameters</p>
+    <div class="param-group">
+      <label for="male-lifespan">Male Lifespan:</label>
+      <input type="number" id="male-lifespan" value="79.4" step="0.1" min="1" max="150"/>
+      
+      <label for="female-lifespan">Female Lifespan:</label>
+      <input type="number" id="female-lifespan" value="85.1" step="0.1" min="1" max="150"/>
+    </div>
+    
+    <div class="param-group">
+      <label for="male-disease">Male Disease Onset:</label>
+      <input type="number" id="male-disease" value="63" step="0.1" min="1" max="150"/>
+      
+      <label for="female-disease">Female Disease Onset:</label>
+      <input type="number" id="female-disease" value="62" step="0.1" min="1" max="150"/>
+    </div>
+  </form>
+
   <ol class="chart months group">
     <li></li>
     <li></li>
@@ -1121,6 +1182,7 @@
     <li></li>
     <li></li>
   </ol>
+  <button class="export-button" onclick="exportToImage()">Export as PNG</button>
   <div class="credits">
     <p>Based on the <a href="http://waitbutwhy.com/2014/05/life-weeks.html">Your Life in Weeks</a> post by Tim Urban, from <a href="http://waitbutwhy.com/">Wait But Why</a>.</p>
     <p class="print-hide"><a href="https://github.com/bryanbraun/your-life">See the code on Github.</a></p>
