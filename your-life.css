@@ -375,15 +375,17 @@ input:required:invalid.touched {
 .legend-items {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
+  justify-content: flex-start;
+  gap: 0;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem;
+  padding: 0;
+  width: 50%;
+  margin-bottom: 0.5rem;
 }
 
 .legend-color {
