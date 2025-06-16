@@ -1,4 +1,14 @@
 /**
+ * CSS Custom Properties (Variables)
+ */
+:root {
+  --lived-col: red;
+  --healthy-col: #2ecc71;
+  --chronic-col: #f1c40f;
+  --female-extra-col: #d3840e;
+}
+
+/**
  * Normalize
  */
 html {
@@ -328,17 +338,89 @@ input:required:invalid.touched {
 
 /* Color indicators */
 .chart li.lived {
-  background-color: red;
+  background-color: var(--lived-col);
 }
 
 .chart li.healthy {
-  background-color: #2ecc71;
+  background-color: var(--healthy-col);
 }
 
 .chart li.chronic {
-  background-color: #f1c40f;
+  background-color: var(--chronic-col);
 }
 
 .chart li.female-extra {
-  background-color: #d3840e; 
+  background-color: var(--female-extra-col);  /* A nice brown color */
+}
+
+/**
+ * Legend Styles
+ */
+.legend {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.legend h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.legend-color.lived {
+  background-color: var(--lived-col);
+}
+
+.legend-color.healthy {
+  background-color: var(--healthy-col);
+}
+
+.legend-color.chronic {
+  background-color: var(--chronic-col);
+}
+
+.legend-color.female-extra {
+  background-color: var(--female-extra-col);
+}
+
+.legend-item span {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+@media (max-width: 600px) {
+  .legend-items {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .legend-item {
+    justify-content: center;
+  }
 }

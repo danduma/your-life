@@ -235,104 +235,89 @@
   // Export functionality
   window.exportToImage = function() {
     var chart = document.querySelector('.chart');
-    var scale = 2; // Increase this for higher resolution
+    var scale = 2;
 
-    // Create a temporary container to properly capture absolutely positioned elements
-    var container = document.createElement('div');
-    container.style.position = 'relative';
-    container.style.width = (chart.offsetWidth + 100) + 'px'; // Extra width for labels
-    container.style.height = (chart.offsetHeight + 150) + 'px'; // Extra height for labels
-    container.style.paddingTop = '4em'; // Space for x-axis
-    container.style.paddingLeft = '6em'; // More space for y-axis
-    container.style.paddingBottom = '3em'; // Space for bottom label
-    container.style.paddingRight = '3em'; // Space for right label
-    container.style.backgroundColor = 'white';
-    container.style.fontFamily = 'Helvetica, Arial, sans-serif';
-
-    // Clone the chart and its axis with all computed styles
-    var chartClone = chart.cloneNode(true);
-    var xAxis = document.querySelector('.x-axis').cloneNode(true);
-    var yAxis = document.querySelector('.y-axis').cloneNode(true);
-
-    // Preserve all CSS classes and computed styles
-    function preserveStyles(original, clone) {
-      var origElements = original.querySelectorAll('*');
-      var cloneElements = clone.querySelectorAll('*');
-      
-      for (var i = 0; i < origElements.length; i++) {
-        if (cloneElements[i]) {
-          var computedStyle = window.getComputedStyle(origElements[i]);
-          var cssText = '';
-          for (var j = 0; j < computedStyle.length; j++) {
-            cssText += computedStyle[j] + ':' + computedStyle.getPropertyValue(computedStyle[j]) + ';';
-          }
-          cloneElements[i].style.cssText = cssText;
-        }
-      }
-    }
-
-    // Apply computed styles to cloned elements
-    preserveStyles(document.querySelector('.x-axis'), xAxis);
-    preserveStyles(document.querySelector('.y-axis'), yAxis);
-    preserveStyles(chart, chartClone);
-
-    // Reduce border width for export and ensure proper positioning
-    var squares = chartClone.querySelectorAll('li');
-    squares.forEach(function(square) {
+    // Temporarily reduce border width for all squares during export
+    var squares = chart.querySelectorAll('li');
+    var originalBorders = [];
+    squares.forEach(function(square, index) {
+      originalBorders[index] = square.style.border;
       square.style.border = '0.5px solid black';
-      square.style.boxSizing = 'border-box';
     });
 
-    // Ensure proper positioning for axes
-    xAxis.style.position = 'absolute';
-    xAxis.style.top = '0';
-    xAxis.style.left = '6em';
-    xAxis.style.width = chart.offsetWidth + 'px';
-    
-    yAxis.style.position = 'absolute';
-    yAxis.style.top = '4em';
-    yAxis.style.left = '0';
-    yAxis.style.height = chart.offsetHeight + 'px';
+    // Get chart position and add padding for absolutely positioned elements
+    var chartRect = chart.getBoundingClientRect();
+    var padding = 100; // Extra space for axes that extend outside
 
-    // Position chart in the container
-    chartClone.style.position = 'absolute';
-    chartClone.style.top = '4em';
-    chartClone.style.left = '6em';
-    chartClone.style.margin = '0';
-
-    container.appendChild(xAxis);
-    container.appendChild(yAxis);
-    container.appendChild(chartClone);
-
-    // Temporarily add container to the document (hidden)
-    container.style.position = 'absolute';
-    container.style.top = '-9999px';
-    container.style.left = '-9999px';
-    document.body.appendChild(container);
-
-    // Small delay to ensure rendering is complete
-    setTimeout(function() {
-      // Configure html2canvas
-      html2canvas(container, {
-        scale: scale,
-        backgroundColor: 'white',
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        width: container.offsetWidth,
-        height: container.offsetHeight
-      }).then(function(canvas) {
-        // Create download link
-        var link = document.createElement('a');
-        var filename = 'your-life-' + unitText + '-' + new Date().toISOString().split('T')[0] + '.png';
-        
-        link.download = filename;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-
-        // Clean up: remove the temporary container
-        document.body.removeChild(container);
+    // Capture with padding to include axes
+    html2canvas(chart, {
+      scale: scale,
+      backgroundColor: 'white',
+      logging: false,
+      useCORS: true,
+      allowTaint: true,
+      x: -padding,
+      y: -padding, 
+      width: chart.offsetWidth + (padding * 2),
+      height: chart.offsetHeight + (padding * 2)
+    }).then(function(canvas) {
+      // Restore original borders
+      squares.forEach(function(square, index) {
+        square.style.border = originalBorders[index];
       });
-    }, 100);
+
+      // Crop the canvas to remove excess white space
+      var ctx = canvas.getContext('2d');
+      var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      var data = imageData.data;
+      
+      // Find actual content bounds
+      var minX = canvas.width, minY = canvas.height, maxX = 0, maxY = 0;
+      
+      for (var y = 0; y < canvas.height; y++) {
+        for (var x = 0; x < canvas.width; x++) {
+          var i = (y * canvas.width + x) * 4;
+          var r = data[i], g = data[i + 1], b = data[i + 2];
+          
+          // If pixel is not white (has content)
+          if (r < 250 || g < 250 || b < 250) {
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+          }
+        }
+      }
+      
+      // Add small padding around content
+      var cropPadding = 20;
+      minX = Math.max(0, minX - cropPadding);
+      minY = Math.max(0, minY - cropPadding);
+      maxX = Math.min(canvas.width, maxX + cropPadding);
+      maxY = Math.min(canvas.height, maxY + cropPadding);
+      
+      // Create cropped canvas
+      var croppedCanvas = document.createElement('canvas');
+      var croppedCtx = croppedCanvas.getContext('2d');
+      croppedCanvas.width = maxX - minX;
+      croppedCanvas.height = maxY - minY;
+      croppedCtx.fillStyle = 'white';
+      croppedCtx.fillRect(0, 0, croppedCanvas.width, croppedCanvas.height);
+      croppedCtx.drawImage(canvas, minX, minY, croppedCanvas.width, croppedCanvas.height, 0, 0, croppedCanvas.width, croppedCanvas.height);
+
+      // Create download link with cropped canvas
+      var link = document.createElement('a');
+      var filename = 'your-life-' + unitText + '-' + new Date().toISOString().split('T')[0] + '.png';
+      
+      link.download = filename;
+      link.href = croppedCanvas.toDataURL('image/png');
+      link.click();
+    }).catch(function(error) {
+      // Restore borders in case of error
+      squares.forEach(function(square, index) {
+        square.style.border = originalBorders[index];
+      });
+      console.error('Export failed:', error);
+    });
   };
 })();
